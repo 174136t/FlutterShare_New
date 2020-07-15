@@ -7,7 +7,9 @@ import 'package:fluttershare/widgets/progress.dart';
 class PostScreen extends StatelessWidget {
   final String userId;
   final String postId;
+
   PostScreen({this.userId, this.postId});
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -28,7 +30,7 @@ class PostScreen extends StatelessWidget {
               children: <Widget>[
                 Container(
                   child: post,
-                ),
+                )
               ],
             ),
           ),

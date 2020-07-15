@@ -138,29 +138,25 @@ class _PostState extends State<Post> {
             title: Text("Remove this post?"),
             children: <Widget>[
               SimpleDialogOption(
-                onPressed: () {
-                  Navigator.pop(context);
-                  deletePost();
-                },
-                child: Text(
-                  "Delete",
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    deletePost();
+                  },
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  )),
               SimpleDialogOption(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  "Cancel",
-                ),
-              )
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel')),
             ],
           );
         });
   }
 
-  //Note: to delete a post, ownerId and currenruserId must be equal, so they can be used interchangeably.
+  // Note: To delete post, ownerId and currentUserId must be equal, so they can be used interchangeably
   deletePost() async {
-// delete post itself
+    // delete post itself
     postsRef
         .document(ownerId)
         .collection('userPosts')
@@ -171,14 +167,12 @@ class _PostState extends State<Post> {
         doc.reference.delete();
       }
     });
-
-//delete uploaded image for the post
+    // delete uploaded image for thep ost
     storageRef.child("post_$postId.jpg").delete();
-
-//then delete all activity feed notifications
+    // then delete all activity feed notifications
     QuerySnapshot activityFeedSnapshot = await activityFeedRef
         .document(ownerId)
-        .collection('feedItems')
+        .collection("feedItems")
         .where('postId', isEqualTo: postId)
         .getDocuments();
     activityFeedSnapshot.documents.forEach((doc) {
@@ -186,7 +180,7 @@ class _PostState extends State<Post> {
         doc.reference.delete();
       }
     });
-    //then delete all comments
+    // then delete all comments
     QuerySnapshot commentsSnapshot = await commentsRef
         .document(postId)
         .collection('comments')
@@ -235,9 +229,9 @@ class _PostState extends State<Post> {
   }
 
   addLikeToActivityFeed() {
-    //add a notification to the post owner's activity feed only if comment made by other user(to avoid getting notification for our own like)
+    // add a notification to the postOwner's activity feed only if comment made by OTHER user (to avoid getting notification for our own like)
     bool isNotPostOwner = currentUserId != ownerId;
-    // if (isNotPostOwner) {
+    if (isNotPostOwner) {
       activityFeedRef
           .document(ownerId)
           .collection("feedItems")
@@ -251,12 +245,12 @@ class _PostState extends State<Post> {
         "mediaUrl": mediaUrl,
         "timestamp": timestamp,
       });
-    // }
+    }
   }
 
   removeLikeFromActivityFeed() {
     bool isNotPostOwner = currentUserId != ownerId;
-    // if (isNotPostOwner) {
+    if (isNotPostOwner) {
       activityFeedRef
           .document(ownerId)
           .collection("feedItems")
@@ -267,7 +261,7 @@ class _PostState extends State<Post> {
           doc.reference.delete();
         }
       });
-    // }
+    }
   }
 
   buildPostImage() {

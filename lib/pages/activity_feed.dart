@@ -33,7 +33,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.orange,
-      appBar: header(context, titleText: "Activity Feed",removeBackButton: true),
+      appBar: header(context, titleText: "Activity Feed"),
       body: Container(
           child: FutureBuilder(
         future: getActivityFeed(),
@@ -86,14 +86,17 @@ class ActivityFeedItem extends StatelessWidget {
       mediaUrl: doc['mediaUrl'],
     );
   }
+
   showPost(context) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => PostScreen(
-                  postId: postId,
-                  userId: userId,
-                )));
+      context,
+      MaterialPageRoute(
+        builder: (context) => PostScreen(
+          postId: postId,
+          userId: userId,
+        ),
+      ),
+    );
   }
 
   configureMediaPreview(context) {
@@ -174,6 +177,12 @@ class ActivityFeedItem extends StatelessWidget {
 }
 
 showProfile(BuildContext context, {String profileId}) {
-  Navigator.push(context,
-      MaterialPageRoute(builder: (context) => Profile(profileId: profileId)));
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Profile(
+        profileId: profileId,
+      ),
+    ),
+  );
 }

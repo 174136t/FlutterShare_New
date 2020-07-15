@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -23,7 +22,6 @@ final activityFeedRef = Firestore.instance.collection('feed');
 final followersRef = Firestore.instance.collection('followers');
 final followingRef = Firestore.instance.collection('following');
 final timelineRef = Firestore.instance.collection('timeline');
-
 final DateTime timestamp = DateTime.now();
 User currentUser;
 
@@ -83,14 +81,14 @@ class _HomeState extends State<Home> {
     });
 
     _firebaseMessaging.configure(
-      // onLaunch: (Map<String, dynamic> message) async{},
-      // onResume: (Map<String, dynamic> message) async{},
+      // onLaunch: (Map<String, dynamic> message) async {},
+      // onResume: (Map<String, dynamic> message) async {},
       onMessage: (Map<String, dynamic> message) async {
         print("on message: $message\n");
         final String recipientId = message['data']['recipient'];
         final String body = message['notification']['body'];
         if (recipientId == user.id) {
-          print("notification shown!");
+          print("Notification shown!");
           SnackBar snackbar = SnackBar(
               content: Text(
             body,
@@ -98,7 +96,7 @@ class _HomeState extends State<Home> {
           ));
           _scaffoldKey.currentState.showSnackBar(snackbar);
         }
-        print("Notification not shown");
+        print("Notification NOT shown");
       },
     );
   }
@@ -131,7 +129,7 @@ class _HomeState extends State<Home> {
         "bio": "",
         "timestamp": timestamp
       });
-// make new user their own follower(to incluse their posts in their timeline)
+      // make new user their own follower (to include their posts in their timeline)
       await followersRef
           .document(user.id)
           .collection('userFollowers')
@@ -172,64 +170,37 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Future<bool> _onWillPop() {
-    return showDialog(
-      context: context,
-      builder: (context) => new Theme(
-        data: Theme.of(context).copyWith(
-            dialogBackgroundColor: Colors.white, backgroundColor: Colors.white),
-        child: AlertDialog(
-          title: new Text('Are you sure?'),
-          content: new Text('Do you want to exit from this App'),
-          actions: <Widget>[
-            new FlatButton(
-              onPressed: () => exit(0),
-              child: new Text('Yes'),
-            ),
-            new FlatButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: new Text('No'),
-            ),
-          ],
-        ),
+  Scaffold buildAuthScreen() {
+    return Scaffold(
+      key: _scaffoldKey,
+      body: PageView(
+        children: <Widget>[
+          Timeline(currentUser: currentUser),
+          ActivityFeed(),
+          Upload(currentUser: currentUser),
+          Search(),
+          Profile(profileId: currentUser?.id),
+        ],
+        controller: pageController,
+        onPageChanged: onPageChanged,
+        physics: NeverScrollableScrollPhysics(),
       ),
-    );
-  }
-
-  WillPopScope buildAuthScreen() {
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        key: _scaffoldKey,
-        body: PageView(
-          children: <Widget>[
-            Timeline(currentUser: currentUser),
-            ActivityFeed(),
-            Upload(currentUser: currentUser),
-            Search(),
-            Profile(profileId: currentUser?.id),
-          ],
-          controller: pageController,
-          onPageChanged: onPageChanged,
-          physics: NeverScrollableScrollPhysics(),
-        ),
-        bottomNavigationBar: CupertinoTabBar(
-            currentIndex: pageIndex,
-            onTap: onTap,
-            activeColor: Theme.of(context).primaryColor,
-            items: [
-              BottomNavigationBarItem(icon: Icon(Icons.whatshot)),
-              BottomNavigationBarItem(icon: Icon(Icons.notifications_active)),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.photo_camera,
-                  size: 35.0,
-                ),
+      bottomNavigationBar: CupertinoTabBar(
+          currentIndex: pageIndex,
+          onTap: onTap,
+          activeColor: Theme.of(context).primaryColor,
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.whatshot)),
+            BottomNavigationBarItem(icon: Icon(Icons.notifications_active)),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.photo_camera,
+                size: 35.0,
               ),
-              BottomNavigationBarItem(icon: Icon(Icons.search)),
-              BottomNavigationBarItem(icon: Icon(Icons.account_circle)),
-            ]),
-      ),
+            ),
+            BottomNavigationBarItem(icon: Icon(Icons.search)),
+            BottomNavigationBarItem(icon: Icon(Icons.account_circle)),
+          ]),
     );
     // return RaisedButton(
     //   child: Text('Logout'),

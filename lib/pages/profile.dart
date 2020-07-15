@@ -20,9 +20,9 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  bool isFollowing = false;
   final String currentUserId = currentUser?.id;
   String postOrientation = "grid";
+  bool isFollowing = false;
   bool isLoading = false;
   int postCount = 0;
   int followerCount = 0;
@@ -122,7 +122,7 @@ class _ProfileState extends State<Profile> {
       child: FlatButton(
         onPressed: function,
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.6,
+          width: 250.0,
           height: 27.0,
           child: Text(
             text,
@@ -148,11 +148,20 @@ class _ProfileState extends State<Profile> {
     // viewing your own profile - should show edit profile button
     bool isProfileOwner = currentUserId == widget.profileId;
     if (isProfileOwner) {
-      return buildButton(text: "Edit Profile", function: editProfile);
+      return buildButton(
+        text: "Edit Profile",
+        function: editProfile,
+      );
     } else if (isFollowing) {
-      return buildButton(text: "Unfollow", function: handleUnfollowUser);
+      return buildButton(
+        text: "Unfollow",
+        function: handleUnfollowUser,
+      );
     } else if (!isFollowing) {
-      return buildButton(text: "Follow", function: handlefollowUser);
+      return buildButton(
+        text: "Follow",
+        function: handleFollowUser,
+      );
     }
   }
 
@@ -160,7 +169,7 @@ class _ProfileState extends State<Profile> {
     setState(() {
       isFollowing = false;
     });
-//remove follower
+    // remove follower
     followersRef
         .document(widget.profileId)
         .collection('userFollowers')
@@ -172,7 +181,6 @@ class _ProfileState extends State<Profile> {
       }
     });
     // remove following
-
     followingRef
         .document(currentUserId)
         .collection('userFollowing')
@@ -183,8 +191,7 @@ class _ProfileState extends State<Profile> {
         doc.reference.delete();
       }
     });
-    //DELETE ACTIVITY FEED item for them
-
+    // delete activity feed item for them
     activityFeedRef
         .document(widget.profileId)
         .collection('feedItems')
@@ -197,25 +204,23 @@ class _ProfileState extends State<Profile> {
     });
   }
 
-  handlefollowUser() {
+  handleFollowUser() {
     setState(() {
       isFollowing = true;
     });
-//make auth user follower of another user(update their followers collecton)
+    // Make auth user follower of THAT user (update THEIR followers collection)
     followersRef
         .document(widget.profileId)
         .collection('userFollowers')
         .document(currentUserId)
         .setData({});
-    // put that user on your following collection(update your following collection)
-
+    // Put THAT user on YOUR following collection (update your following collection)
     followingRef
         .document(currentUserId)
         .collection('userFollowing')
         .document(widget.profileId)
         .setData({});
-    //add activity feed item for that user to notify about new follower (us)
-
+    // add activity feed item for that user to notify about new follower (us)
     activityFeedRef
         .document(widget.profileId)
         .collection('feedItems')
@@ -232,80 +237,80 @@ class _ProfileState extends State<Profile> {
 
   buildProfileHeader() {
     return FutureBuilder(
-      future: usersRef.document(widget.profileId).get(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return circularProgress();
-        }
-        User user = User.fromDocument(snapshot.data);
-        return Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  CircleAvatar(
-                    radius: 40.0,
-                    backgroundColor: Colors.grey,
-                    backgroundImage: CachedNetworkImageProvider(user.photoUrl),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      children: <Widget>[
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            buildCountColumn("posts", postCount),
-                            buildCountColumn("followers", followerCount),
-                            buildCountColumn("following", followingCount),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            buildProfileButton(),
-                          ],
-                        ),
-                      ],
+        future: usersRef.document(widget.profileId).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return circularProgress();
+          }
+          User user = User.fromDocument(snapshot.data);
+          return Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    CircleAvatar(
+                      radius: 40.0,
+                      backgroundColor: Colors.grey,
+                      backgroundImage:
+                          CachedNetworkImageProvider(user.photoUrl),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        children: <Widget>[
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              buildCountColumn("posts", postCount),
+                              buildCountColumn("followers", followerCount),
+                              buildCountColumn("following", followingCount),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              buildProfileButton(),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.only(top: 12.0),
+                  child: Text(
+                    user.username,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
                     ),
                   ),
-                ],
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.only(top: 12.0),
-                child: Text(
-                  user.username,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.0,
+                ),
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    user.displayName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.only(top: 4.0),
-                child: Text(
-                  user.displayName,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.only(top: 2.0),
+                  child: Text(
+                    user.bio,
                   ),
                 ),
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.only(top: 2.0),
-                child: Text(
-                  user.bio,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+              ],
+            ),
+          );
+        });
   }
 
   buildProfilePosts() {
@@ -383,7 +388,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header(context, titleText: "Profile",removeBackButton: true),
+      appBar: header(context, titleText: "Profile"),
       body: ListView(
         children: <Widget>[
           buildProfileHeader(),
